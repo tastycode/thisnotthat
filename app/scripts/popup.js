@@ -1,3 +1,9 @@
-'use strict';
+import angular from 'angular';
 
-console.log('\'Allo \'Allo! Popup');
+import ChromeStorage from './services/cstorage';
+import PopupCtrl from './controllers/popup';
+
+angular.module('tnt', [])
+  .service('ChromeStorage', ChromeStorage)
+  .controller('PopupCtrl', PopupCtrl);
+

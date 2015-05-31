@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html ng-csp>
   <head>
     <meta charset="utf-8">
     <!-- build:css styles/vendor.css -->
@@ -10,8 +10,27 @@
     <link href="styles/main.css" rel="stylesheet">
     <!-- endbuild -->
   </head>
-  <body>
-    <h1>'Allo, 'Allo!</h1>
+  <body ng-app="tnt">
+    <div ng-controller="PopupCtrl">
+      <table>
+        <tr ng-repeat="(match, replacement) in replacers">
+          <td>{{match}}</td>
+          <td>{{replacement}}</td>
+          <td><button ng-click="removeReplacer(match)">-</button></td>
+        </tr>
+        <tr>
+          <td>
+            <input class="field-control" ng-model="newReplacer.match">
+          </td>
+          <td>
+            <input class="field-control" ng-model="newReplacer.replacement">
+          </td>
+          <td>
+            <button ng-click="addReplacer()">+</button>
+          </td>
+        </tr>
+      </table>
+    </div>
 
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
