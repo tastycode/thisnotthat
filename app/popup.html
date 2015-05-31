@@ -12,6 +12,10 @@
   </head>
   <body ng-app="tnt">
     <div ng-controller="PopupCtrl">
+      <h1>This not That</h1>
+      <label for="enabled">Enabled</label> <input type="checkbox" ng-model="enabled" name="enabled">
+  
+      <h1>Replacements</h1>
       <table>
         <tr ng-repeat="(match, replacement) in replacers">
           <td>{{match}}</td>

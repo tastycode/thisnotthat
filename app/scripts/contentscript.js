@@ -7,7 +7,9 @@ import q from 'q'
 (function(global) {
   var replacementInProgress = false;
   var replacers = {};
+  var enabled = false;
   var storage = new ChromeStorage(q);
+  var initialized = true;
 
   let capitalize = function(word) {
     return word.charAt(0).toUpperCase() + word.slice(1);
@@ -32,9 +34,10 @@ import q from 'q'
   };
 
   function replaceWords() {
-    console.log('replacing words', replacers);
     textNodes().forEach(function(textNode) {
       var replaceMap = casifiedReplacers();
+      textNode['originalText'] = textNode['originalText'] || textNode.textContent;
+      textNode.textContent = textNode['originalText'];
       Object.keys(replaceMap).forEach(function(replaceRex) {
         var value = replaceMap[replaceRex];
         textNode.textContent = textNode.textContent.replace(new RegExp(replaceRex, "g"), value);
@@ -42,31 +45,62 @@ import q from 'q'
     });
   }
 
+  function unreplaceWords() {
+    textNodes().forEach(function(textNode) {
+      textNode.textContent = textNode['originalText'];
+    });
+
+  }
+
   storage.getValue('replacers').then(function(storedReplacers) {
-    console.log('got replacers', storedReplacers);
     replacers = storedReplacers;
     replaceWords();
   });
+
 
   storage.watchValue('replacers', function(newValue, oldValue) {
     replacers = newValue;
     replaceWords();
   });
 
+  storage.getValue('enabled', function(enabled) {
+    if (enabled) initialize();
+  });
 
-  document.body.addEventListener('DOMSubtreeModified', function() {
-    if (replacementInProgress) return;
-    replacementInProgress = true;
-    replaceWords();
-    setTimeout(function() {
+  storage.watchValue('enabled', function(newValue, oldValue) {
+    enabled = newValue;
+    if (newValue) {
+      initialize();
+    } else {
+      unreplaceWords();
+    }
+  });
+
+
+
+  function initialize() {
+    if (initialized) {
+      replacementInProgress = true;
+      replaceWords();
       replacementInProgress = false;
-    }, 1000);
-  });
+      return;
+    }
 
-  document.body.addEventListener('DOMContentLoaded', function() {
-    replacementInProgress = true;
-    replaceWords();
-    replacementInProgress = false;
-  });
+    document.body.addEventListener('DOMSubtreeModified', function() {
+      if (replacementInProgress) return;
+      replacementInProgress = true;
+      replaceWords();
+      setTimeout(function() {
+        replacementInProgress = false;
+      }, 1000);
+    });
+
+    document.body.addEventListener('DOMContentLoaded', function() {
+      replacementInProgress = true;
+      replaceWords();
+      replacementInProgress = false;
+    });
+    initialized = true;
+  }
 }(window));
 

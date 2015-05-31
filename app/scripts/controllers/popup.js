@@ -20,10 +20,9 @@ function PopupCtrl($scope, ChromeStorage) {
     ChromeStorage.setValue('replacers', $scope.replacers);
   }
 
-  $scope.toggleEnabled = function() {
-    $scope.enabled = !$scope.enabled;
+  $scope.$watch('enabled', function() {
     ChromeStorage.setValue('enabled', $scope.enabled);
-  }
+  });
 
   ChromeStorage.getValue('replacers').then(function(replacers) {
     $scope.replacers = replacers || {};
